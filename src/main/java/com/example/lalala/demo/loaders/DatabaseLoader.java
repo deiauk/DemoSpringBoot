@@ -43,6 +43,7 @@ public class DatabaseLoader implements ApplicationRunner {
         saveUsers();
     }
 
+
     private void saveUsers() {
         List<Item> items = itemRepository.findAll();
         List<User> users = userRepository.findAll();
