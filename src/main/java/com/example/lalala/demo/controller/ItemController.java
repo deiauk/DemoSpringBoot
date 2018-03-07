@@ -1,9 +1,7 @@
 package com.example.lalala.demo.controller;
 
-import com.example.lalala.demo.model.Candidate;
 import com.example.lalala.demo.model.Item;
 import com.example.lalala.demo.model.User;
-import com.example.lalala.demo.respository.CandidateRepository;
 import com.example.lalala.demo.respository.ItemRepository;
 import com.example.lalala.demo.respository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +20,6 @@ public class ItemController {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    CandidateRepository candidateRepository;
 
     @GetMapping("/item")
     public List<Item> getAllItems() {
@@ -83,34 +78,39 @@ public class ItemController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/markItem/{itemId}/{userId}/{userItemId}")
-    public Item markItemAsWish(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userId") Long userId, @PathVariable(value = "userId") Long userItemId) {
-        Item item = itemRepository.findOne(itemId);
-        User user = userRepository.findOne(userId);
-        if (user != null) {
-            Item candidateItem = itemRepository.findOne(userItemId);
-            Candidate candidate = candidateRepository.findByItemAndUser(candidateItem, user);
-            if (candidate == null) {
-                candidate = new Candidate(candidateItem, user);
-            } else {
-                System.out.printf("sdfsdf");
+    @PostMapping("/markItem/{itemId}/{userItemId}")
+    public ResponseEntity<Item> markItemAsWish(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userItemId") Long userItemId) {
+        Item targetItem = itemRepository.findOne(itemId);
+        Item tradeItem = itemRepository.findOne(userItemId);
+        if (targetItem != null && tradeItem != null && !targetItem.getUser().equals(tradeItem.getUser())) {
+            targetItem.addCandidateItem(tradeItem);
+
+            Item item = itemRepository.save(targetItem);
+            boolean ifItemsMatch = checkIfItemsMatch(item, tradeItem.getCandidateItems());
+
+            if (ifItemsMatch) {
+                System.out.println("It's a match!");
             }
-            candidateRepository.save(candidate);
-            item.addCandidate(candidate);
         }
-        return itemRepository.save(item);
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/unmarkItem/{itemId}/{userId}/{userItemId}")
-    public Item unmarkItemAsWish(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userId") Long userId, @PathVariable(value = "userId") Long userItemId) {
-        Item item = itemRepository.findOne(itemId);
-        User user = userRepository.findOne(userId);
-        if (user != null) {
-            Item candidateItem = itemRepository.findOne(userItemId);
-            Candidate candidate = candidateRepository.findByItemAndUser(candidateItem, user);
-            item.removeCandidate(candidate);
-            //candidateRepository.delete(candidate);
+    private boolean checkIfItemsMatch(Item item, List<Item> candidates) {
+        for (Item candidateItem : candidates) {
+            if (item.equals(candidateItem)) {
+                return true;
+            }
         }
-        return itemRepository.save(item);
+        return false;
+    }
+
+    @PostMapping("/unmarkItem/{itemId}/{userItemId}")
+    public Item unmarkItemAsWish(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userItemId") Long userItemId) {
+        Item targetItem = itemRepository.findOne(itemId);
+        Item tradeItem = itemRepository.findOne(userItemId);
+        if (targetItem != null && tradeItem != null) {
+            targetItem.removeCandidateItem(tradeItem);
+        }
+        return itemRepository.save(targetItem);
     }
 }

@@ -3,7 +3,6 @@ package com.example.lalala.demo.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Formula;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;
@@ -41,7 +40,6 @@ public class Item implements Serializable {
     @NotNull
     private Double lng;
 
-    @JsonIgnore
     @JsonManagedReference
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
@@ -57,17 +55,34 @@ public class Item implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
-    @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "candidate",
-            joinColumns = @JoinColumn(name = "item_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<Candidate> candidates;
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name="candidate",
+            joinColumns={@JoinColumn(name="itemId")},
+            inverseJoinColumns={@JoinColumn(name="candidateItemId")})
+    private List<Item> candidateItems;
 
     public Item() {
 
+    }
+
+    public List<Item> getCandidateItems() {
+        return candidateItems;
+    }
+
+    public void addCandidateItem(Item candidate) {
+        if (candidateItems == null) candidateItems = new ArrayList<>();
+        for (Item tmp : candidateItems) {
+            if (tmp.equals(candidate)) {
+                return;
+            }
+        }
+        this.candidateItems.add(candidate);
+    }
+
+    public void removeCandidateItem(Item candidate) {
+        if (candidateItems == null) candidateItems = new ArrayList<>();
+        this.candidateItems.remove(candidate);
     }
 
     public Item(String title, String description, String imgUrl, Double lat, Double lng) {
@@ -140,27 +155,5 @@ public class Item implements Serializable {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public List<Candidate> getCandidates() {
-        return candidates;
-    }
-
-    public void addCandidate(Candidate candidate) {
-        if (candidates == null) {
-            candidates = new ArrayList<>();
-        }
-        if (!candidates.contains(candidate) && !this.user.equals(candidate.getUser())) {
-            candidates.add(candidate);
-        }
-    }
-
-    public void removeCandidate(Candidate candidate) {
-        if (candidates == null) {
-            candidates = new ArrayList<>();
-        }
-        if (candidates.contains(candidate)) {
-            candidates.remove(candidate);
-        }
     }
 }

@@ -20,5 +20,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 //            columns={
 //                    @ColumnResult(name="item_name")}
 //    )
+
     List<Item> findNearest(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("beginAt") Integer beginAt);
 }

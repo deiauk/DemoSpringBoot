@@ -1,12 +1,15 @@
 package com.example.lalala.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,6 +21,8 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"}, allowGetters = true)
 public class User implements Serializable {
+
+    public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,35 +37,17 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
-
-
-    @Fetch(FetchMode.JOIN)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Item> items;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "candidate",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "item_id")
-    )
-    private List<Item> itemsList;
+    @JsonIgnore
+    private String token;
 
     public User() {
 
     }
 
-    public User(String email, String name) {
+    public User(String email, String name, String token) {
         this.email = email;
         this.name = name;
-    }
-
-    public void addItem(Item item) {
-        if (items == null) {
-            items = new ArrayList<>();
-        }
-        item.setUser(this);
-        items.add(item);
+        this.token = PASSWORD_ENCODER.encode(token);
     }
 
     public Long getId() {
@@ -79,7 +66,7 @@ public class User implements Serializable {
         return email;
     }
 
-    public List<Item> getItems() {
-        return items;
+    public String getToken() {
+        return token;
     }
 }

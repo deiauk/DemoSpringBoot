@@ -30,17 +30,17 @@ public class DatabaseLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments applicationArguments) {
-//        User user = new User("tadas@gmail.com", "Tadas keturakis");
-//        userRepository.save(user);
-//
-//        User user2 = new User("deividas717@gmail.com", "Deividas Aukštakalnis");
-//        userRepository.save(user2);
-//
-//        for (int i = 0; i < 100; i++) {
-//            Item item = new Item("Lg G Flex " + i, "Mazai naudotas idealios bukles", "www.google.lt", coordinates(80.0 , 20.0), coordinates(80.0 , 20.0));
-//            itemRepository.save(item);
-//        }
-//        saveUsers();
+        User user = new User("tadas@gmail.com", "Tadas keturakis", "tadas");
+        userRepository.save(user);
+
+        User user2 = new User("deividas717@gmail.com", "Deividas Aukštakalnis", "deividas");
+        userRepository.save(user2);
+
+        for (int i = 1; i <= 100; i++) {
+            Item item = new Item("Lg G Flex " + i, "Mazai naudotas idealios bukles", "www.google.lt", coordinates(80.0 , 20.0), coordinates(80.0 , 20.0));
+            itemRepository.save(item);
+        }
+        saveUsers();
     }
 
     private void saveUsers() {
