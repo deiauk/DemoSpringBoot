@@ -63,8 +63,6 @@ public class Item implements Serializable {
 
     }
 
-
-
     public Item(String title, String description, Double lat, Double lng) {
         this.title = title;
         this.description = description;

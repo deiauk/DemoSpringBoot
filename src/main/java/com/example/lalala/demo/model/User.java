@@ -22,7 +22,7 @@ import java.util.List;
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"}, allowGetters = true)
 public class User implements Serializable {
 
-    public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+    //public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
-    @JsonIgnore
-    private String token;
+    //@JsonIgnore
+    //private String token;
 //
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -51,7 +51,7 @@ public class User implements Serializable {
     public User(String email, String name, String token) {
         this.email = email;
         this.name = name;
-        this.token = PASSWORD_ENCODER.encode(token);
+        //this.token = PASSWORD_ENCODER.encode(token);
     }
 
     public Long getId() {
@@ -70,9 +70,9 @@ public class User implements Serializable {
         return email;
     }
 
-    public String getToken() {
-        return token;
-    }
+   // public String getToken() {
+       // return token;
+    //}
 
     public List<Item> getItems() {
         return items;

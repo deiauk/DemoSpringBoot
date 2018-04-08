@@ -103,6 +103,14 @@ public class ItemController {
         return ResponseEntity.ok(updatedItem);
     }
 
+    // todo maybe create new table and mark card as already seen
+    @PostMapping("/markItemAsAlreadySeen")
+    public Item createNewItem(@PathVariable(value = "itemId") Long itemId) {
+        Item item = itemRepository.findOne(itemId);
+
+        return itemRepository.save(item);
+    }
+
     @DeleteMapping("/item/{id}")
     public ResponseEntity<Item> deleteNote(@PathVariable(value = "id") Long noteId) {
         Item item = itemRepository.findOne(noteId);
