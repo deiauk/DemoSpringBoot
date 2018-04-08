@@ -39,6 +39,10 @@ public class User implements Serializable {
 
     @JsonIgnore
     private String token;
+//
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Item> items;
 
     public User() {
 
@@ -68,5 +72,9 @@ public class User implements Serializable {
 
     public String getToken() {
         return token;
+    }
+
+    public List<Item> getItems() {
+        return items;
     }
 }

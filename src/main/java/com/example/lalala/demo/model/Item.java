@@ -1,10 +1,7 @@
 package com.example.lalala.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.validator.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -31,8 +28,8 @@ public class Item implements Serializable {
     @NotBlank
     private String description;
 
-    @NotNull
-    private String img;
+    @ElementCollection
+    private List<String> images;
 
     @NotNull
     private Double lat;
@@ -40,7 +37,7 @@ public class Item implements Serializable {
     @NotNull
     private Double lng;
 
-    @JsonManagedReference
+    @JsonBackReference
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
@@ -66,6 +63,19 @@ public class Item implements Serializable {
 
     }
 
+
+
+    public Item(String title, String description, Double lat, Double lng) {
+        this.title = title;
+        this.description = description;
+        this.lat = lat;
+        this.lng = lng;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
     public List<Item> getCandidateItems() {
         return candidateItems;
     }
@@ -85,14 +95,6 @@ public class Item implements Serializable {
         this.candidateItems.remove(candidate);
     }
 
-    public Item(String title, String description, String imgUrl, Double lat, Double lng) {
-        this.title = title;
-        this.description = description;
-        this.img = imgUrl;
-        this.lat = lat;
-        this.lng = lng;
-    }
-
     public void setUser(User user) {
         this.user = user;
     }
@@ -105,8 +107,8 @@ public class Item implements Serializable {
         return description;
     }
 
-    public String getImg() {
-        return img;
+    public List<String> getImages() {
+        return images;
     }
 
     public Double getLat() {
@@ -137,8 +139,8 @@ public class Item implements Serializable {
         this.description = description;
     }
 
-    public void setImg(String img) {
-        this.img = img;
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
     public void setLat(Double lat) {

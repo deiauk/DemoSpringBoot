@@ -42,9 +42,7 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable(value = "id") Long noteId,
                                            @Valid @RequestBody User itemDetails) {
         User item = userRepository.findOne(noteId);
-        if(item == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if(item == null) return ResponseEntity.notFound().build();
 
         User updatedItem = userRepository.save(item);
         return ResponseEntity.ok(updatedItem);

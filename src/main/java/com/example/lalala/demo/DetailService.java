@@ -10,7 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DetailService implements UserDetailsService {
+public class DetailService implements UserDetailsService
+{
     @Autowired
     UserRepository userRepository;
 

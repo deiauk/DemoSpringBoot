@@ -10,16 +10,14 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    @Query(nativeQuery = true, value = "SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS(:latitude)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:longitude)) + SIN(RADIANS(:latitude)) * SIN(RADIANS(lat)))) AS distance_in_km FROM Item ORDER BY distance_in_km LIMIT :beginAt, 5")
-//    @SqlResultSetMapping(name="OrderResults",
-//            entities={
-//                    @EntityResult(entityClass = Item, fields = {
-//                            @FieldResult(name = "id", column = "order_id"),
-//                            @FieldResult(name = "quantity", column = "order_quantity"),
-//                            @FieldResult(name = "item", column = "order_item")})},
-//            columns={
-//                    @ColumnResult(name="item_name")}
-//    )
-
-    List<Item> findNearest(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("beginAt") Integer beginAt);
+    @Query(nativeQuery = true, value = "SELECT *, 111.045 * " +
+            "DEGREES(ACOS(COS(RADIANS(:latitude)) " +
+            "* COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:longitude)) " +
+            "+ SIN(RADIANS(:latitude)) * SIN(RADIANS(lat)))) " +
+            "AS distance_in_km FROM Item WHERE user_id != :userId " +
+            "ORDER BY distance_in_km LIMIT :beginAt, 5")
+    List<Item> findNearest(@Param("userId") Long userId,
+                           @Param("latitude") Double latitude,
+                           @Param("longitude") Double longitude,
+                           @Param("beginAt") Integer beginAt);
 }
