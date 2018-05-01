@@ -24,14 +24,6 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @PostMapping("/createUser")
-    public User createUser(@Valid @RequestBody User user) {
-        User dbUser = userRepository.findByEmail(user.getEmail());
-        if (dbUser != null) return dbUser;
-
-        return userRepository.save(user);
-    }
-
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long userId) {
         User user = userRepository.findOne(userId);

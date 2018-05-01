@@ -1,7 +1,6 @@
 package com.example.lalala.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +30,7 @@ public class User implements Serializable, UserDetails {
     @Column(unique = true)
     private String email;
 
-    @JsonManagedReference
+    @JsonIgnoreProperties("user")
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> items;
 
@@ -39,10 +38,10 @@ public class User implements Serializable, UserDetails {
 
     }
 
-    public User(String email, String name) {
+    public User(String email, String name, String img) {
         this.email = email;
         this.name = name;
-        //this.token = PASSWORD_ENCODER.encode(token);
+        this.img = img;
     }
 
     public Long getId() {
@@ -65,36 +64,43 @@ public class User implements Serializable, UserDetails {
         return items;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
     }
 
+    @JsonIgnore
     @Override
     public String getPassword() {
         return null;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

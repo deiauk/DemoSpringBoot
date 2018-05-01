@@ -85,7 +85,7 @@ public class ItemController {
         return ResponseEntity.ok().body(item);
     }
 
-    @GetMapping("/image/{name:.+}")
+    @GetMapping(value = "/image/{name:.+}", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getImage(@PathVariable(value = "name") String name) {
         return storageService.loadFileAsByteArray(name);
     }

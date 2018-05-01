@@ -35,7 +35,10 @@ public class AuthenticationController {
     public ResponseEntity<?> createAuthenticationToken(@RequestBody FbToken fbToken) throws AuthenticationException {
 
         FacebookClient facebookClient = new DefaultFacebookClient(fbToken.getToken(), "c3f9ab2aafccf7fd02f4b0aa627ee891", Version.VERSION_2_5);
-        com.restfb.types.User fbUser = facebookClient.fetchObject("me", com.restfb.types.User.class,
+        FacebookClient.DebugTokenInfo info  = facebookClient.debugToken(fbToken.getToken());
+        info.isValid();
+        com.restfb.types.User fbUser = facebookClient.fetchObject("me",
+                com.restfb.types.User.class,
                 Parameter.with("fields", "email,first_name,last_name,locale")
         );
 
@@ -44,13 +47,16 @@ public class AuthenticationController {
 
         // token creation
         User user = userRepository.findByEmail(fbUser.getEmail());
-        if (user == null) {
-            return ResponseEntity.notFound().build();
+        if (user == null) { // if null -> new user first has to register
+            user = createNewUser(fbUser);
         }
         String jws = tokenHelper.generateToken(user.getEmail());
-        int expiresIn = tokenHelper.getExpiredIn();
-        // Return the token
-        return ResponseEntity.ok(new UserTokenState(jws, expiresIn));
+        return ResponseEntity.ok(new UserTokenState(jws, tokenHelper.getExpiredIn())); // Return the token
+    }
+
+    private User createNewUser(com.restfb.types.User user) {
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        return userRepository.save(new User(user.getEmail(), fullName, "https://graph.facebook.com/" + user.getId() + "/picture?type=large"));
     }
 
     @RequestMapping(value = "/refresh", method = RequestMethod.POST)
