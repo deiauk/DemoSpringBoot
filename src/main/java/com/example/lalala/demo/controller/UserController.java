@@ -24,9 +24,9 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long userId) {
-        User user = userRepository.findOne(userId);
+    @GetMapping("/user/{email:.+}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable(value = "email") String email) {
+        User user = userRepository.findByEmail(email);
         if(user == null) {
             return ResponseEntity.notFound().build();
         }

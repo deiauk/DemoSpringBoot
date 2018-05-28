@@ -26,6 +26,7 @@ public class Item implements Serializable {
     private String title;
 
     @NotBlank
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ElementCollection

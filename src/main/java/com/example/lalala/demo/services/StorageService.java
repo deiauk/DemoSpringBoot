@@ -38,10 +38,10 @@ public class StorageService {
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new RuntimeException("FAIL!");
+                throw new RuntimeException("FAIL! " + resource.exists() + " " + resource.isReadable());
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("FAIL!");
+            throw new RuntimeException("FAIL! " + e.getMessage());
         }
     }
 

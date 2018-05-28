@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class User implements Serializable, UserDetails {
     @JsonIgnoreProperties("user")
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> items;
+
+    @ElementCollection
+    private List<Long> alreadySeenCardsIds;
 
     public User() {
 
@@ -62,6 +66,15 @@ public class User implements Serializable, UserDetails {
 
     public List<Item> getItems() {
         return items;
+    }
+
+    public List<Long> getAlreadySeenCards() {
+        return alreadySeenCardsIds;
+    }
+
+    public void addAlreadySeenCard(Long itemId) {
+        if (alreadySeenCardsIds == null) alreadySeenCardsIds = new ArrayList<>();
+        alreadySeenCardsIds.add(itemId);
     }
 
     @JsonIgnore

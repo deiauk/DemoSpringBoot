@@ -35,8 +35,6 @@ public class AuthenticationController {
     public ResponseEntity<?> createAuthenticationToken(@RequestBody FbToken fbToken) throws AuthenticationException {
 
         FacebookClient facebookClient = new DefaultFacebookClient(fbToken.getToken(), "c3f9ab2aafccf7fd02f4b0aa627ee891", Version.VERSION_2_5);
-        FacebookClient.DebugTokenInfo info  = facebookClient.debugToken(fbToken.getToken());
-        info.isValid();
         com.restfb.types.User fbUser = facebookClient.fetchObject("me",
                 com.restfb.types.User.class,
                 Parameter.with("fields", "email,first_name,last_name,locale")
@@ -51,7 +49,7 @@ public class AuthenticationController {
             user = createNewUser(fbUser);
         }
         String jws = tokenHelper.generateToken(user.getEmail());
-        return ResponseEntity.ok(new UserTokenState(jws, tokenHelper.getExpiredIn())); // Return the token
+        return ResponseEntity.ok(new UserTokenState(jws, tokenHelper.getExpiredIn(), user.getId())); // Return the token
     }
 
     private User createNewUser(com.restfb.types.User user) {
@@ -59,17 +57,17 @@ public class AuthenticationController {
         return userRepository.save(new User(user.getEmail(), fullName, "https://graph.facebook.com/" + user.getId() + "/picture?type=large"));
     }
 
-    @RequestMapping(value = "/refresh", method = RequestMethod.POST)
-    public ResponseEntity<?> refreshAuthenticationToken(HttpServletRequest request, Principal principal) {
-        String authToken = tokenHelper.getToken(request);
-        if (authToken != null && principal != null) {
-            // TODO check user password last update
-            String refreshedToken = tokenHelper.refreshToken(authToken);
-            int expiresIn = tokenHelper.getExpiredIn();
-            return ResponseEntity.ok(new UserTokenState(refreshedToken, expiresIn));
-        } else {
-            UserTokenState userTokenState = new UserTokenState();
-            return ResponseEntity.accepted().body(userTokenState);
-        }
-    }
+//    @RequestMapping(value = "/refresh", method = RequestMethod.POST)
+//    public ResponseEntity<?> refreshAuthenticationToken(HttpServletRequest request, Principal principal) {
+//        String authToken = tokenHelper.getToken(request);
+//        if (authToken != null && principal != null) {
+//            // TODO check user password last update
+//            String refreshedToken = tokenHelper.refreshToken(authToken);
+//            int expiresIn = tokenHelper.getExpiredIn();
+//            return ResponseEntity.ok(new UserTokenState(refreshedToken, expiresIn));
+//        } else {
+//            UserTokenState userTokenState = new UserTokenState();
+//            return ResponseEntity.accepted().body(userTokenState);
+//        }
+//    }
 }

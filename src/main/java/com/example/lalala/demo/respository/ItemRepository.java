@@ -14,10 +14,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "DEGREES(ACOS(COS(RADIANS(:latitude)) " +
             "* COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:longitude)) " +
             "+ SIN(RADIANS(:latitude)) * SIN(RADIANS(lat)))) " +
-            "AS distance_in_km FROM Item WHERE user_id != :userId " +
-            "ORDER BY distance_in_km LIMIT :beginAt, 5")
+            "AS distance_in_km FROM Item WHERE user_id != :userId AND id NOT IN (:alreadySeenIds) " +
+            "ORDER BY distance_in_km LIMIT 10")
     List<Item> findNearest(@Param("userId") Long userId,
                            @Param("latitude") Double latitude,
                            @Param("longitude") Double longitude,
-                           @Param("beginAt") Integer beginAt);
+                           @Param("alreadySeenIds") List<Long> alreadySeenIds);
 }
