@@ -1,5 +1,6 @@
 package com.example.lalala.demo.model;
 
+import com.example.lalala.demo.TradeType;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
@@ -53,30 +54,44 @@ public class Item implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
+    private Double price = -1d;
+    private int candidatesCount = 0;
+
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name="candidate",
-            joinColumns={@JoinColumn(name="itemId")},
-            inverseJoinColumns={@JoinColumn(name="candidateItemId")})
+    @JoinTable(name = "candidate",
+            joinColumns = { @JoinColumn(name="itemId") },
+            inverseJoinColumns = { @JoinColumn(name="candidateItemId") })
     private List<Item> candidateItems;
+
+    private TradeType tradeType;
 
     public Item() {
 
-    }
-
-    public Item(String title, String description, Double lat, Double lng) {
-        this.title = title;
-        this.description = description;
-        this.lat = lat;
-        this.lng = lng;
     }
 
     public Long getId() {
         return id;
     }
 
+    public Double getPrice() {
+        return price;
+    }
+
     public List<Item> getCandidateItems() {
         return candidateItems;
+    }
+
+    public int getCandidatesCount() {
+        return candidatesCount;
+    }
+
+    public TradeType getTradeType() {
+        return tradeType;
+    }
+
+    public void setTradeType(TradeType tradeType) {
+        this.tradeType = tradeType;
     }
 
     public void addCandidateItem(Item candidate) {
@@ -87,11 +102,28 @@ public class Item implements Serializable {
             }
         }
         this.candidateItems.add(candidate);
+        candidatesCount = this.candidateItems.size();
+    }
+
+    public List<Item> getUserItems(long userId) {
+        if (userId == -1L) return null;
+
+        if (candidateItems != null) {
+            List<Item> userItems = new ArrayList<>();
+            candidateItems.forEach((v) -> {
+                if (v.getUser().getId() == userId) {
+                    userItems.add(v);
+                }
+            });
+            return userItems;
+        }
+        return null;
     }
 
     public void removeCandidateItem(Item candidate) {
         if (candidateItems == null) candidateItems = new ArrayList<>();
         this.candidateItems.remove(candidate);
+        candidatesCount = this.candidateItems.size();
     }
 
     public void setUser(User user) {

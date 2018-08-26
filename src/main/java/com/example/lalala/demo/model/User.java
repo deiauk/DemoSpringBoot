@@ -35,8 +35,8 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Item> items;
 
-    @ElementCollection
-    private List<Long> alreadySeenCardsIds;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+    private List<UserItemsHistory> userItemsHistories;
 
     public User() {
 
@@ -69,12 +69,15 @@ public class User implements Serializable, UserDetails {
     }
 
     public List<Long> getAlreadySeenCards() {
-        return alreadySeenCardsIds;
+        List<Long> ids = new ArrayList<>();
+        if (userItemsHistories == null) return null;
+        userItemsHistories.forEach(v -> ids.add(v.getItemId()));
+        return ids;
     }
 
     public void addAlreadySeenCard(Long itemId) {
-        if (alreadySeenCardsIds == null) alreadySeenCardsIds = new ArrayList<>();
-        alreadySeenCardsIds.add(itemId);
+        if (userItemsHistories == null) userItemsHistories = new ArrayList<>();
+        userItemsHistories.add(new UserItemsHistory(id, itemId));
     }
 
     @JsonIgnore

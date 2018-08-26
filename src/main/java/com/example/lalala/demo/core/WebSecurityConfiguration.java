@@ -69,10 +69,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // TokenAuthenticationFilter will ignore the below paths
-        web.ignoring().antMatchers(
-                HttpMethod.POST,
-                "/auth/login"
-        );
+        web.ignoring()
+                .antMatchers(HttpMethod.POST, "/auth/login")
+                .antMatchers(HttpMethod.GET, "/api/image/**");
         web.ignoring().antMatchers(
                 HttpMethod.GET,
                 "/",

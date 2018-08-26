@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -43,7 +44,7 @@ public class ItemController {
 
     ObjectMapper oMapper = new ObjectMapper();
 
-    @GetMapping(value = {"/nearestItems/{email:.+}/{lat}/{lng}", "/nearestItems/{email:.+}/{lat}/{lng}/{downloadedIds}"})
+    @GetMapping(value = {"/nearestItems/{email:.+}/{lat}/{lng}/{downloadedIds}"})
     public List<Item> GetNearest(@PathVariable(value = "email") String email,
                                  @PathVariable(value = "lat") Double lat,
                                  @PathVariable(value = "lng") Double lng,
@@ -59,6 +60,19 @@ public class ItemController {
         }
 
         return itemRepository.findNearest(user.getId(), lat, lng, ids);
+    }
+
+    public static float distFrom(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        float dist = (float) (earthRadius * c);
+
+        return dist;
     }
 
     @PostMapping("/createNewItem")
@@ -130,7 +144,6 @@ public class ItemController {
         return ResponseEntity.ok(updatedItem);
     }
 
-    // todo maybe create new table and mark card as already seen
     @PostMapping("/markItemAsAlreadySeen/{itemId}/{userId}")
     public ResponseEntity markItemAsAlreadySeen(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userId") Long userId) {
         Item item = itemRepository.findOne(itemId);
@@ -177,21 +190,24 @@ public class ItemController {
         return ResponseEntity.ok(item.getCandidateItems());
     }
 
-    @PostMapping("/markItem/{itemId}")
-    public ResponseEntity<Item> markItemAsWish(@PathVariable(value = "itemId") Long itemId, @RequestBody Long[] ids) {
+    @PostMapping("/markItem/{itemId}/{userId}")
+    public ResponseEntity markItemAsWish(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userId") Long userId, @RequestBody Long[] ids) {
         Item targetItem = itemRepository.findOne(itemId);
         if (targetItem == null) return ResponseEntity.notFound().build();
 
+        User targetUser = targetItem.getUser();
         for (Long id : ids) {
             Item tradeItem = itemRepository.findOne(id);
             if (tradeItem == null) continue;
 
-            User targetUser = targetItem.getUser();
+            System.out.println("dfsdfsdfsdfsdfsfAAAAAAAA id===========" + id +" " + !targetUser.equals(tradeItem.getUser()));
+
             // do not let same user select their own item
             if (!targetUser.equals(tradeItem.getUser())) {
                 targetItem.addCandidateItem(tradeItem);
 
                 Item item = itemRepository.save(targetItem);
+                System.out.println("dfsdfsdfsdfsdfsf itemRepository.save(targetItem) BAIGTA" );
                 boolean ifItemsMatch = checkIfItemsMatch(item, tradeItem.getCandidateItems());
 
                 if (ifItemsMatch) {
@@ -202,6 +218,24 @@ public class ItemController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deleteItemSelectedIds/{itemId}/{userId}")
+    public ResponseEntity deleteItemSelectedIds(@PathVariable(value = "itemId") Long itemId, @PathVariable(value = "userId") Long userId, @RequestBody Long[] ids) {
+        Item targetItem = itemRepository.findOne(itemId);
+        if (targetItem == null) return ResponseEntity.notFound().build();
+
+        removePreviouslySelectedUserItems(ids, targetItem);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void removePreviouslySelectedUserItems(Long[] ids, Item targetItem) {
+        if (ids != null && ids.length > 0) {
+            List<Long> idsList = new ArrayList<>(Arrays.asList(ids));
+            itemRepository.deleteFromCandidatesByItemIds(idsList);
+            itemRepository.save(targetItem);
+        }
     }
 
     private boolean checkIfItemsMatch(Item item, List<Item> candidates) {
