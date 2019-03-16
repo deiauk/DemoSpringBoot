@@ -1,6 +1,7 @@
 package com.example.lalala.demo.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +39,9 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
     private List<UserItemsHistory> userItemsHistories;
 
+    private int thumbsUpCount;
+    private int thumbsDownCount;
+
     public User() {
 
     }
@@ -66,6 +70,22 @@ public class User implements Serializable, UserDetails {
 
     public List<Item> getItems() {
         return items;
+    }
+
+    public int getThumbsUpCount() {
+        return thumbsUpCount;
+    }
+
+    public int getThumbsDownCount() {
+        return thumbsDownCount;
+    }
+
+    public void incThumbsUp() {
+        this.thumbsUpCount++;
+    }
+
+    public void incThumbsDown() {
+        this.thumbsDownCount++;
     }
 
     public List<Long> getAlreadySeenCards() {

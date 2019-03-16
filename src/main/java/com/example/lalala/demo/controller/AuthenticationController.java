@@ -34,7 +34,8 @@ public class AuthenticationController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody FbToken fbToken) throws AuthenticationException {
 
-        FacebookClient facebookClient = new DefaultFacebookClient(fbToken.getToken(), "c3f9ab2aafccf7fd02f4b0aa627ee891", Version.VERSION_2_5);
+        //110b73f621702d3a9caa45ce56a9f644
+        FacebookClient facebookClient = new DefaultFacebookClient(fbToken.getToken(), "110b73f621702d3a9caa45ce56a9f644'", Version.VERSION_2_5);
         com.restfb.types.User fbUser = facebookClient.fetchObject("me",
                 com.restfb.types.User.class,
                 Parameter.with("fields", "email,first_name,last_name,locale")

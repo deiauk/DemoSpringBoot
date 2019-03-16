@@ -39,7 +39,7 @@ public class Item implements Serializable {
     @NotNull
     private Double lng;
 
-    @JsonIgnoreProperties("items")
+    //@JsonIgnoreProperties("items")
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
